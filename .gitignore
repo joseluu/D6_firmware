@@ -7,3 +7,4 @@ Inc/Backup
 .mxproject
 VisualGDBCache
 *.VC.db
+*.old
