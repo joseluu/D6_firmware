@@ -6,3 +6,4 @@ Src/Backup
 Inc/Backup
 .mxproject
 VisualGDBCache
+*.VC.db
