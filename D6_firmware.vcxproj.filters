@@ -251,6 +251,9 @@
     <ClCompile Include="Src\D6Board.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\dma.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stm32f1xx_hal_conf.h">
@@ -548,6 +551,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Inc\D6Board.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\dma.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

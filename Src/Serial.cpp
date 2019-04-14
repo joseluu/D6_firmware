@@ -22,14 +22,19 @@
 SerialInput * SerialInput::ACTIVE_CHANNEL = NULL;
 SerialOutput * SerialOutput::ACTIVE_CHANNEL = NULL;
 
-
+void SerialInput::initialize(SerialOutput * echoChannel)
+{
+	if (HAL_UART_Receive_DMA(&huart1, &rxBuffer, 1) != HAL_OK) {
+		Error_Handler();
+	}
+	echo = echoChannel;
+}
 
 SerialInput::SerialInput(UART_HandleTypeDef * pHandle, char * buffer, unsigned int size)
 	: pHandle(pHandle)
 	, driverBuffer (buffer)
 	, driverBufferSize (size)
 {
-
 	driverBufferNextChar = buffer;
 	nChars = 0;
 	eol = false;
@@ -51,6 +56,11 @@ char * SerialInput::fgets(char * str, int size)
 		HAL_Delay(1);
 	}
 	return fgetsNonBlocking(str, size);
+}
+
+bool SerialInput::isCharAvailable()
+{
+	return driverBufferNextChar != driverBuffer;
 }
 
 char *  SerialInput::fgetsNonBlocking(char * str, int size)
@@ -82,7 +92,7 @@ cleanup:
 
 void SerialInput::doInputIT(void)
 {
-	char c = inputBuffer[0];
+	unsigned char c = rxBuffer;
 	if (echo) {
 		echo->putch(c);
 		if (c == '\r') {
@@ -109,12 +119,14 @@ void SerialInput::doInputIT(void)
 			nChars++;
 		}
 	}
+	#if 0
 	HAL_StatusTypeDef status;
-	do
+	status = HAL_UART_Receive_IT(pHandle, (uint8_t *)inputBuffer, 1);
+	if (status == HAL_BUSY)
 	{
-		status = HAL_UART_Receive_IT(pHandle, (uint8_t *)inputBuffer, 1);
+		Error_Handler();
 	}
-	while (status == HAL_BUSY);
+	#endif
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
@@ -124,6 +136,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 	} else {
 		Error_Handler();
 	}
+	__HAL_UART_FLUSH_DRREGISTER(UartHandle); // Clear the buffer to prevent overrun
 	serialObject->doInputIT();
 }
 
@@ -159,7 +172,7 @@ bool SerialOutput::putch(char c)
 	{
 		statusTransmit = HAL_UART_Transmit(pHandle, (uint8_t*)&c, 1, 10);
 	} 
-		while (statusTransmit != HAL_BUSY);
+		while (statusTransmit == HAL_BUSY);
 	busy = false;
 	return statusTransmit;
 }
@@ -206,6 +219,6 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 //	HAL_UART_ERROR_DMA       = 0x10,    /*!< DMA transfer error  */
 //	HAL_UART_ERROR_BUSY      = 0x20     /*!< Busy Error          */
 	static int nLastError = huart->ErrorCode;
-	//Error_Handler();
+	Error_Handler();
 }
 

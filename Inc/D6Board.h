@@ -17,10 +17,18 @@ typedef enum {
 void frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level);
 void sendSingleRegister(WhichADF indexADF, unsigned long reg);
 void sendADF4351(WhichADF indexADF, unsigned long reg);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void ledD1(bool stateOn);
 void ledD2(bool stateOn);
 void probeSPI(WhichADF indexADF);
 
+#ifdef __cplusplus
+}
+#endif
 
 
 

@@ -31,15 +31,10 @@ public:
 class SerialInput {
 public:
 	SerialInput(UART_HandleTypeDef * pHandle, char * buffer, unsigned int size);
-	void initialize(SerialOutput * echoChannel = NULL)
-	{
-		if (HAL_UART_Receive_IT(pHandle, (uint8_t *)inputBuffer, 1) != HAL_OK) {
-			Error_Handler();
-		}
-		echo = echoChannel;
-	}
+	void initialize(SerialOutput * echoChannel = NULL);
 	void doInputIT();
 	char * fgets(char * str, int size);
+	bool isCharAvailable();
 	char * fgetsNonBlocking(char * str, int size);
 
 	static SerialInput * channel_1;
@@ -47,6 +42,7 @@ public:
 	static SerialInput * channel_3;
 
 	SerialOutput * echo;
+	uint8_t rxBuffer; // used by DMA
 	char inputBuffer[2];
 	bool eol;
 	unsigned int overrun;

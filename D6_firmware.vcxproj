@@ -126,6 +126,7 @@
     <ClCompile Include="Src\ADF4351.cpp" />
     <ClCompile Include="Src\Command.cpp" />
     <ClCompile Include="Src\D6Board.cpp" />
+    <ClCompile Include="Src\dma.c" />
     <ClCompile Include="Src\gpio.c" />
     <ClCompile Include="Src\Loop.cpp" />
     <ClCompile Include="Src\main.c" />
@@ -227,6 +228,7 @@
     <ClInclude Include="Inc\ADF4351.h" />
     <ClInclude Include="Inc\Command.h" />
     <ClInclude Include="Inc\D6Board.h" />
+    <ClInclude Include="Inc\dma.h" />
     <ClInclude Include="Inc\gpio.h" />
     <ClInclude Include="Inc\Loop.h" />
     <ClInclude Include="Inc\main.h" />

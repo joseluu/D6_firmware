@@ -48,7 +48,7 @@ void initializeListener()
 {
 	pSerialOut = &SerialOut;
 	pSerialIn = &SerialIn;
-	pSerialIn->initialize(NULL); // no echo channel
+	pSerialIn->initialize(NULL); // start receiving DMA and IT NULL means no echo channel
 	//pSerialIn->initialize(pSerialOut);  // with echo
 	pSerialOut->puts("\r\nD6 ready\r\n");
 	inputProtocolState = eDWT;
@@ -149,8 +149,10 @@ void doListen()
 		break;
 	case eDWT:
 		doNWT(c);
+		break;
 	case eAD:
 		doAD(c);
+		break;
 	}
 }
 
@@ -252,7 +254,7 @@ void doNWT(char c)
 			RESTART_IF_FAILED(getInputInt(command.step, 6, 0));
 			RESTART_IF_FAILED(getInputInt(command.count, 4, 0));
 			command.step *= 1000; 
-			command.count *= 100; 
+			//command.count *= 100; 
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;

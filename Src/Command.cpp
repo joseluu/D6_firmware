@@ -89,9 +89,10 @@ void execute(Command command)
 	case 'd':
 	case 'w':
 	case 'x':
-		for (int i=0;i<command.count;i++)
+		int i;
+		for (i=0;i<command.count;i++)
 		{
-			unsigned int frequency;
+			unsigned long long  frequency;
 			frequency = command.frequency + i*command.step;
 			frequencySetup(eTracking, frequency,4);
 			frequencySetup(eAnalyzer, frequency + analyzerOffset, 4);
