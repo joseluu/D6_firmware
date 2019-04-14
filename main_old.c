@@ -19,12 +19,12 @@
 /* Private define ------------------------------------------------------------*/
 #define FIRMWARE_VERSION 119
 /* Private macro -------------------------------------------------------------*/
-#define adf4351_LD1 GPIOB->BSRR= GPIO_Pin_1 
-#define adf4351_LD2 GPIOB->ODR ^= GPIO_Pin_1 //
+#define adf4351_LD1 GPIOB->BSRR= GPIO_Pin_1 // B1 bit set
+#define adf4351_LD2 GPIOB->ODR ^= GPIO_Pin_1 // B1 bit toggle
 /* Private variables ---------------------------------------------------------*/
 
-#define LE1()      {GPIOB->CRH&=0XFFF0FFFF;GPIOB->CRH|=0x00030000;} 
-#define LE2()    {GPIOA->CRL&=0XFFF0FFFF;GPIOA->CRL|=0x00030000;}
+#define LE1()      {GPIOB->CRH&=0XFFF0FFFF;GPIOB->CRH|=0x00030000;} // set B12 push pull high-speed
+#define LE2()    {GPIOA->CRL&=0XFFF0FFFF;GPIOA->CRL|=0x00030000;}// set A4 pushpull high-speed
 
 #define adf4351_LE        PBout(12)
 #define adf4351_LEA        PAout(4)

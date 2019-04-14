@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <VisualGDBProjectSettings2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ConfigurationName>Debug</ConfigurationName>
+  <ConfigurationName>Release</ConfigurationName>
   <Project xsi:type="com.visualgdb.project.embedded">
     <CustomSourceDirectories>
       <Directories />
@@ -11,10 +11,14 @@
   </Project>
   <Build xsi:type="com.visualgdb.build.embedded">
     <MakeFilePathRelativeToSourceDir>Makefile</MakeFilePathRelativeToSourceDir>
-    <MakeConfigurationName>Debug</MakeConfigurationName>
+    <MakeConfigurationName>Release</MakeConfigurationName>
     <AdditionalMakeArguments>$(LocalMultiThreadedBuildFlags)</AdditionalMakeArguments>
     <MakeCommandTemplate>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+      <RemoteHost>
+        <HostName>BuildMachine</HostName>
+        <Transport>BuiltinShortcut</Transport>
+      </RemoteHost>
       <Command>cmd.exe</Command>
       <Arguments>/c "$(TOOLCHAIN_ROOT)\bin\make.exe"</Arguments>
       <WorkingDirectory>$(BuildDir)</WorkingDirectory>
@@ -70,7 +74,7 @@
       <Entries>
         <KeyValue>
           <Key>com.sysprogs.arm.openocd.interface</Key>
-          <Value>interface/stlink-v2-1.cfg</Value>
+          <Value>interface/stlink-v2.cfg</Value>
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.arm.openocd.cpu</Key>
@@ -130,7 +134,7 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.arm.openocd.quicksetup.interface</Key>
-          <Value>stlink-v2-1</Value>
+          <Value>stlink-v2</Value>
         </KeyValue>
       </Entries>
     </DebugMethodProperties>
