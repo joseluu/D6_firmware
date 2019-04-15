@@ -190,21 +190,21 @@ void doNWT(char c)
 		case 'b'://sweep with us delay between measurement and audiosens, 27 bytes command, returns linear measurement n x 2 x 2 bytes
 			int ff;
 			RESTART_IF_FAILED(getInputInt(command.frequency, 9, 0));
-			RESTART_IF_FAILED(getInputInt(command.step, 6, 0));
+			RESTART_IF_FAILED(getInputInt(command.step, 8, 0));
 			RESTART_IF_FAILED(getInputInt(command.count, 4, 0));
 			RESTART_IF_FAILED(getInputInt(command.delay, 3, 0));
 			RESTART_IF_FAILED(getInputInt(command.audio, 2, 0));
+			command.step *= 10;
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;
 		case 'c'://sweep with us delay between measurement and audiosens, 25 bytes command, returns log measurement n x 2 x 2 bytes
 		case 'd'://sweep with us delay between measurement and audiosens, 25 bytes command, returns linear measurement n x 2 x 2 bytes
 			RESTART_IF_FAILED(getInputInt(command.frequency, 9, 0));
-			RESTART_IF_FAILED(getInputInt(command.step, 6, 0));
+			RESTART_IF_FAILED(getInputInt(command.step, 8, 0));
 			RESTART_IF_FAILED(getInputInt(command.count, 4, 0));
 			RESTART_IF_FAILED(getInputInt(command.delay, 3, 0));
-			command.step *= 1000; 
-			command.count *= 100; 
+			command.step *= 10; 
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;
@@ -213,7 +213,6 @@ void doNWT(char c)
 		case 'f'://VFO
 			RESTART_IF_FAILED(getInputInt(command.frequency, 9, 0));
 			command.step *= 1000; 
-			command.count *= 100; 
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;
@@ -251,10 +250,9 @@ void doNWT(char c)
 		case  'w':		//  sweep AD8361 (linear RMS) 22 bytes command, returns  n x 2 x 2 bytes
 		case 'x':		//  sweep AD8307 (log) 22 bytes command, returns  n x 2 x 2 bytes
 			RESTART_IF_FAILED(getInputInt(command.frequency, 9, 0));
-			RESTART_IF_FAILED(getInputInt(command.step, 6, 0));
+			RESTART_IF_FAILED(getInputInt(command.step, 8, 0));
 			RESTART_IF_FAILED(getInputInt(command.count, 4, 0));
-			command.step *= 1000; 
-			//command.count *= 100; 
+			command.step *= 10; 
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;

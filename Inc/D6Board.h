@@ -14,10 +14,11 @@ typedef enum {
 
 #include "ADF4351.h"
 
-void frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level);
+#ifdef __cplusplus
+bool frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level, unsigned int & range, bool forceRange);
 void sendSingleRegister(WhichADF indexADF, unsigned long reg);
 void sendADF4351(WhichADF indexADF, unsigned long reg);
-
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -136,22 +136,40 @@ void frequencySetupInternal(WhichADF indexADF, unsigned long long internalVCOFre
 	writeADFRegisters(indexADF, registerSet);
 }
 
-void frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level)
+bool frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level, unsigned int &range, bool forceRange)
 {
-	if (frequency > ADF_MAX_FREQUENCY) 
+	unsigned long long VCOfrequency = frequency;
+	if (VCOfrequency > ADF_MAX_FREQUENCY) 
 	{
 		ADF4351Off(indexADF);
+		return false;
 	}
-	for (int i=0;i<ADF_RANGE_COUNT;i++)
+	if (forceRange) 
 	{
-		if (frequency >= ADF_MIN_FREQUENCY)
+		VCOfrequency = frequency << range;
+		if (VCOfrequency< ADF_MIN_FREQUENCY || VCOfrequency > ADF_MAX_FREQUENCY) 
 		{
-			frequencySetupInternal(indexADF,frequency, i, level);
-			return;
+			return false;
 		}
-		frequency *= 2;
+		frequencySetupInternal(indexADF, VCOfrequency, range, level);
+		return true;
+	}
+	for (range = 0; range < ADF_RANGE_COUNT; range++)
+	{
+		if (VCOfrequency >= ADF_LOW_FREQUENCY)
+		{
+			frequencySetupInternal(indexADF, VCOfrequency, range, level);
+			return true;
+		}
+		VCOfrequency *= 2;
+	}
+	if (VCOfrequency/2 >= ADF_MIN_FREQUENCY){ // we try the extended value
+		range--;
+		frequencySetupInternal(indexADF, VCOfrequency/2, range, level);
+		return true;
 	}
 	ADF4351Off(indexADF);
+	return false;
 }
 
 void ADF4351Off(WhichADF indexADF)

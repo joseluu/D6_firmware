@@ -66,6 +66,7 @@ void sendMeasurement()
 
 void execute(Command command)
 {
+	unsigned int range;
 	switch(command.code)
 	{
 	case 'f':
@@ -79,8 +80,10 @@ void execute(Command command)
 		delay_us_DWT(10);
 	}
 #else
-	frequencySetup(eTracking, command.frequency,4);
-	frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4);
+	if (frequencySetup(eTracking, command.frequency,4, range, false)) 
+	{
+		frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, true);
+	}
 #endif
 		break;
 	case 'a':
@@ -94,8 +97,9 @@ void execute(Command command)
 		{
 			unsigned long long  frequency;
 			frequency = command.frequency + i*command.step;
-			frequencySetup(eTracking, frequency,4);
-			frequencySetup(eAnalyzer, frequency + analyzerOffset, 4);
+			if (frequencySetup(eTracking, frequency, 4, range, false)) {
+				frequencySetup(eAnalyzer, frequency + analyzerOffset, 4, range, true);
+			}
 			if (command.code == 'a' || command.code == 'b' || command.code == 'c' || command.code == 'd') {
 				delay_us_DWT(command.delay*100);
 			} else {
@@ -104,10 +108,8 @@ void execute(Command command)
 			sendMeasurement();
 		}
 		break;
-	case 'k': // 6 bytes command: Which ADF, register
+	case 'i': // 6 bytes command: Which ADF, register
 		sendSingleRegister((WhichADF)command.which, command.r);
-		break;
-	case 'l': // 22 bytes: Which ADF 6 registers
 		break;
 	case 'm': // send measurement (linear)
 	case 'n': // send measurement (log)
