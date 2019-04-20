@@ -19,12 +19,8 @@
 #include "main.h"
 #include "D6Board.h"
 
-void ledD1(bool stateOn)
-{
-	HAL_GPIO_WritePin(D1_GPIO_Port, D1_Pin, stateOn ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
 
-void ledD2(bool stateOn)
+void ledD2(bool stateOn) // the tracking generator "on" led
 {
 	HAL_GPIO_WritePin(D2_GPIO_Port, D2_Pin, stateOn ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }

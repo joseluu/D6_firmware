@@ -126,6 +126,7 @@
     <ClCompile Include="Src\ADF4351.cpp" />
     <ClCompile Include="Src\Command.cpp" />
     <ClCompile Include="Src\D6Board.cpp" />
+    <ClCompile Include="Src\debouncedButton.cpp" />
     <ClCompile Include="Src\dma.c" />
     <ClCompile Include="Src\gpio.c" />
     <ClCompile Include="Src\Loop.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="Src\stm32f1xx_hal_msp.c" />
     <ClCompile Include="Src\stm32f1xx_it.c" />
     <ClCompile Include="Src\system_stm32f1xx.c" />
+    <ClCompile Include="Src\tim.c" />
     <ClCompile Include="Src\usart.c" />
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +230,7 @@
     <ClInclude Include="Inc\ADF4351.h" />
     <ClInclude Include="Inc\Command.h" />
     <ClInclude Include="Inc\D6Board.h" />
+    <ClInclude Include="Inc\debouncedButton.h" />
     <ClInclude Include="Inc\dma.h" />
     <ClInclude Include="Inc\gpio.h" />
     <ClInclude Include="Inc\Loop.h" />
@@ -236,6 +239,7 @@
     <ClInclude Include="Inc\spi.h" />
     <ClInclude Include="Inc\stm32f1xx_hal_conf.h" />
     <ClInclude Include="Inc\stm32f1xx_it.h" />
+    <ClInclude Include="Inc\tim.h" />
     <ClInclude Include="Inc\usart.h" />
     <ClInclude Include="stm32f1xx_hal_conf.h" />
   </ItemGroup>

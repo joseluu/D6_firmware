@@ -20,7 +20,7 @@
 #include "main.h"
 #include "Command.h"
 #include "Loop.h"
-
+#include "debouncedButton.h"
 
 #include "Serial.h"
 
@@ -43,6 +43,7 @@ typedef enum {
 } eInputProtocol_t;
 
 eInputProtocol_t inputProtocolState;
+DebouncedButton *button;
 
 void initializeListener()
 {
@@ -52,6 +53,9 @@ void initializeListener()
 	//pSerialIn->initialize(pSerialOut);  // with echo
 	pSerialOut->puts("\r\nD6 ready\r\n");
 	inputProtocolState = eDWT;
+	button = new DebouncedButton(SW_GPIO_Port,SW_Pin);
+	analyzerStandbyLedOn(true);
+	DebouncedButton::addButton(button);
 }
 
 void doInteractive(char c)
@@ -139,6 +143,14 @@ bool getInputC(char & c)
 void doListen()
 {
 	char c;
+
+	do
+	{
+		bool buttonChanged;
+		bool buttonStateDown = button->buttonState(&buttonChanged);
+		bool releasedButton = buttonChanged && (!buttonStateDown);
+		executeButtonRelease(releasedButton);
+	}
 	while (!getInputC(c))
 		;
 
@@ -264,7 +276,7 @@ void doNWT(char c)
 	}
 	if (bCommandReady)
 	{
-		execute(command);
+		executeCommand(command);
 		state = eFrame;
 	}
 }

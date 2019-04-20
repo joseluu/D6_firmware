@@ -5,7 +5,7 @@
 void doInteractive(char c);
 void doNWT(char c);
 void doAD(char c);
-
+void enableTracking(bool newState);
 
 typedef struct {
 	char code;
@@ -24,7 +24,9 @@ typedef struct {
 	unsigned long r5;
 } Command;
 
-void execute(Command command);
+void analyzerStandbyLedOn(bool standbyState);
+void executeButtonRelease(bool releasedButton);
+void executeCommand(Command command);
 
 
 #endif

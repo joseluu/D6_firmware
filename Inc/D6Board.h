@@ -14,11 +14,32 @@ typedef enum {
 
 #include "ADF4351.h"
 
+//R1
+#define R1 ((MODULUS_VALUE & MOD_VALUE_MASK) << MOD_VALUE_SHIFT) | PHASE_VALUE_DEFAULT | PRESCALER8_9 | R1_ADDRESS
+
+//R2
+#define R_COUNTER 1 // PFD=REFERENCE (25Mhz)
+#define R2 PD_POLARITY_POS | LOCK_DETECT_PRECISION_10NS | CHARGE_CURRENT_2_5MA | (R_COUNTER << R_COUNTER_SHIFT ) | R2_ADDRESS
+
+//R3
+#define CLOCK_DIVIDER  150 << CLOCK_DIVIDER_VALUE_SHIFT
+#define R3  CLOCK_DIVIDER | R3_ADDRESS
+
+//R4
+#define BS_CLOCK  200 << BAND_SELECT_CLOCK_DIVIDER_SHIFT
+#define R4 RF_OUTPUT_MINUS4dBm | RF_OUTPUT_ENABLE | BS_CLOCK | FEEDBACK_FUNDAMENTAL | R4_ADDRESS // no AUX output
+
+//R5
+#define R5 R5_RESERVED | DIGITAL_LOCK_DETECT_PIN | R5_ADDRESS
+
+
 #ifdef __cplusplus
 bool frequencySetup(WhichADF indexADF, unsigned long long frequency, unsigned int level, unsigned int & range, bool forceRange);
 void sendSingleRegister(WhichADF indexADF, unsigned long reg);
 void sendADF4351(WhichADF indexADF, unsigned long reg);
-#endif
+void ADF4351Off(WhichADF indexADF);
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

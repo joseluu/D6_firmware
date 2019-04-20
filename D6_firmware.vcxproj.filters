@@ -254,6 +254,12 @@
     <ClCompile Include="Src\dma.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\tim.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\debouncedButton.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stm32f1xx_hal_conf.h">
@@ -554,6 +560,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Inc\dma.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\tim.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\debouncedButton.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

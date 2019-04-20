@@ -18,6 +18,7 @@
 #include <cstring>
 #include "adc.h"
 #include "main.h"
+#include "tim.h"
 #include "D6Board.h"
 #include "Loop.h"
 #include "Serial.h"
@@ -26,6 +27,27 @@
 
 static unsigned long delayFactor = 100;
 static long analyzerOffset = 128000;
+static bool trackingGeneratorEnabled = false;
+
+void analyzerStandbyLedOn(bool newState)
+{
+		blinkD1(newState);
+}
+
+void enableTracking(bool newState)
+{
+	trackingGeneratorEnabled = newState;
+	ledD2(newState);
+	if (!newState) 
+	{
+		ADF4351Off(eTracking);
+	}
+}
+
+bool isTrackingEnabled()
+{
+	return trackingGeneratorEnabled;
+}
 
 void setDelayFactor(unsigned long newDelayFactor)
 {
@@ -64,9 +86,17 @@ void sendMeasurement()
 	}
 }
 
-void execute(Command command)
+void executeButtonRelease(bool releasedButton)
+{
+	if (releasedButton) {
+		enableTracking(!isTrackingEnabled());
+	}
+}
+
+void executeCommand(Command command)
 {
 	unsigned int range;
+
 	switch(command.code)
 	{
 	case 'f':
@@ -80,10 +110,13 @@ void execute(Command command)
 		delay_us_DWT(10);
 	}
 #else
-	if (frequencySetup(eTracking, command.frequency,4, range, false)) 
-	{
-		frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, true);
-	}
+		if (isTrackingEnabled()) {
+			if (frequencySetup(eTracking, command.frequency, 4, range, false)) {
+				analyzerStandbyLedOn(!frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, true));
+			}
+		} else {
+			analyzerStandbyLedOn(!frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, false));
+		}
 #endif
 		break;
 	case 'a':
@@ -97,8 +130,12 @@ void execute(Command command)
 		{
 			unsigned long long  frequency;
 			frequency = command.frequency + i*command.step;
-			if (frequencySetup(eTracking, frequency, 4, range, false)) {
-				frequencySetup(eAnalyzer, frequency + analyzerOffset, 4, range, true);
+			if (isTrackingEnabled()) {
+				if (frequencySetup(eTracking, frequency, 4, range, false)) {
+					analyzerStandbyLedOn(!frequencySetup(eAnalyzer, frequency + analyzerOffset, 4, range, true));
+				} 
+			} else {
+				analyzerStandbyLedOn(!frequencySetup(eAnalyzer, frequency + analyzerOffset, 4, range, false));
 			}
 			if (command.code == 'a' || command.code == 'b' || command.code == 'c' || command.code == 'd') {
 				delay_us_DWT(command.delay*100);
