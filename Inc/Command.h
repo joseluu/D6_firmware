@@ -42,7 +42,7 @@ typedef struct {
 } Command;
 
 void analyzerStandbyLedOn(bool standbyState);
-void executeButtonRelease(bool releasedButton);
+void executeButtonAction(bool pushedButton);
 void executeCommand(Command command);
 
 

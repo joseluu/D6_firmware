@@ -78,6 +78,7 @@ void sendMeasurement()
 	short value = 0;
 	char cValue[2] = { 0, 0 };
 	if (getADCMeasurement(&value)) {
+		value /= 4; // use 10 bits
 		memcpy(cValue, &value, 2);
 		sendChar(cValue[0]);
 		sendChar(cValue[1]);
@@ -86,9 +87,9 @@ void sendMeasurement()
 	}
 }
 
-void executeButtonRelease(bool releasedButton)
+void executeButtonAction(bool pushedButton)
 {
-	if (releasedButton) {
+	if (pushedButton) {
 		enableTracking(!isTrackingEnabled());
 	}
 }

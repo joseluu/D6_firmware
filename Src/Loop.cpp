@@ -148,8 +148,8 @@ void doListen()
 	{
 		bool buttonChanged;
 		bool buttonStateDown = button->buttonState(&buttonChanged);
-		bool releasedButton = buttonChanged && (!buttonStateDown);
-		executeButtonRelease(releasedButton);
+		bool pushedButton = buttonChanged && (buttonStateDown);
+		executeButtonAction(pushedButton);
 	}
 	while (!getInputC(c))
 		;
