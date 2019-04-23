@@ -76,18 +76,18 @@ bool getInputBinary(unsigned long &longValue, unsigned int timeoutMs)
 {
 	char cNext[2];
 	char c;
-	unsigned int inputBytes = 0;
+	unsigned char inputBytes[4];
+	int inputCount = 0;
 	unsigned long inputValue = 0;
-	int shiftCount = 0;
-	while (inputBytes < sizeof(longValue)) {
+	while (inputCount < sizeof(longValue)) {
 		if (pSerialIn->fgetsNonBlocking(cNext, 2) != NULL) {
-			cNext[0];
-			longValue |= cNext[0]; // LSB first
-			longValue <<= 8;
-			inputBytes++;
+			inputBytes[inputCount]=cNext[0];
+			inputCount++;
 		}
 		// check for timeout
 	}
+	longValue = inputBytes[0] | inputBytes[1] << 8 | inputBytes[2] << 16 | inputBytes[3] <<24;
+	return true;
 }
 bool getInputBinary(unsigned char &byteValue, unsigned int timeoutMs)
 {
@@ -228,23 +228,15 @@ void doNWT(char c)
 			command.frequency *= 10;
 			bCommandReady = true;
 			break;
-		case 'h':// misc parameters
+		case 'g':// read capability parameters
 			break;
-		case 'i'://read status of misc parameters
+		case 'h':// set capability parameters
 			bCommandReady = true;
 			break;
-		case 'k': // 6 bytes command: Which ADF, register
+		case 'i': // immediate programming 6 bytes command: Which ADF, register
 			RESTART_IF_FAILED(getInputBinary(command.which, 0));
 			RESTART_IF_FAILED(getInputBinary(command.r, 0));
-			break;
-		case 'l': // 22 bytes: Which ADF 6 registers
-			RESTART_IF_FAILED(getInputBinary(command.which, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r0, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r1, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r2, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r3, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r4, 0));
-			RESTART_IF_FAILED(getInputBinary(command.r5, 0));
+			bCommandReady = true;
 			break;
 		case  'm':		//   read measure value now, 1 byte command, returns 4 bytes
 			break;

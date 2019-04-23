@@ -38,6 +38,7 @@ SerialInput::SerialInput(UART_HandleTypeDef * pHandle, char * buffer, unsigned i
 	driverBufferNextChar = buffer;
 	nChars = 0;
 	eol = false;
+	textMode = false;
 	overrun = 0;
 	inputBuffer[0] = 0;
 	inputBuffer[1] = 0;
@@ -79,7 +80,7 @@ char *  SerialInput::fgetsNonBlocking(char * str, int size)
 		goto cleanup;
 	} else {
 		sizeUseful = driverBufferNextChar - driverBuffer;
-		strncpy(str, driverBuffer, sizeUseful);
+		memcpy(str, driverBuffer, sizeUseful);
 		str[sizeUseful] = 0;
 		driverBufferNextChar = driverBuffer;
 		nChars = 0;
@@ -102,19 +103,28 @@ void SerialInput::doInputIT(void)
 	if ((driverBufferNextChar - driverBuffer) >= driverBufferSize) {
 		overrun++;
 	} else {
-		if (c == '\n') {
-			eol = true;
-		}
-		if (c == '\r') {
-			c = '\n';
-			eol = true;
-		}
-		if (c == 127 || c == 8) { // handle backspace and delete (only when echoing ?)
-			if (nChars > 0) {
-				driverBufferNextChar--;
-				nChars--;
+		if (textMode) {
+			if (c == '\n') {
+				eol = true;
 			}
-		} else {
+			if (c == '\r') {
+				c = '\n';
+				eol = true;
+			}
+			if (c == 127 || c == 8) {
+				 // handle backspace and delete (only when echoing ?)
+				if(nChars > 0)
+				{
+					driverBufferNextChar--;
+					nChars--;
+				}
+			} else {
+				*driverBufferNextChar++ = c;
+				nChars++;
+			}
+		} 
+		else
+		{
 			*driverBufferNextChar++ = c;
 			nChars++;
 		}

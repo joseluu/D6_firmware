@@ -157,7 +157,7 @@ void executeCommand(Command command)
 		sendStatus();
 		break;
 	case 'v': // version
-		sendChar(119);
+		sendChar(2);
 		break;
 
 	}

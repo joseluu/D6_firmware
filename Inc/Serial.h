@@ -62,6 +62,7 @@ public:
 	uint8_t rxBuffer; // used by DMA
 	char inputBuffer[2];
 	bool eol;
+	bool textMode;
 	unsigned int overrun;
 	unsigned int nChars;
 	char * driverBuffer;

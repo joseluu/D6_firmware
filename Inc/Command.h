@@ -33,12 +33,6 @@ typedef struct {
 	long long audio;
 	unsigned char which;
 	unsigned long r;
-	unsigned long r0;
-	unsigned long r1;
-	unsigned long r2;
-	unsigned long r3;
-	unsigned long r4;
-	unsigned long r5;
 } Command;
 
 void analyzerStandbyLedOn(bool standbyState);
