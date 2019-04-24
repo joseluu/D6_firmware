@@ -64,6 +64,19 @@ bool SerialInput::isCharAvailable()
 	return driverBufferNextChar != driverBuffer;
 }
 
+bool SerialInput::fgetc(unsigned char & c) // non blocking
+{
+	if ((driverBufferNextChar - driverBuffer) < 1) 
+	{
+		return false;
+	}
+	const int sizeUseful = 1; // read one character
+	c = driverBuffer[0];
+	strncpy(driverBuffer, &driverBuffer[1], nChars - sizeUseful);
+	nChars -= sizeUseful;
+	driverBufferNextChar = &driverBuffer[nChars];
+	return true;
+}
 char *  SerialInput::fgetsNonBlocking(char * str, int size)
 {
 	while (!eol && ((driverBufferNextChar - driverBuffer) < size-1)) {

@@ -19,8 +19,10 @@
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
+#define FIRMWARE_VERSION 4
+
 void doInteractive(char c);
-void doNWT(char c);
+void doNWT(unsigned char c);
 void doAD(char c);
 void enableTracking(bool newState);
 

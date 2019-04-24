@@ -61,7 +61,7 @@ void MX_TIM3_Init(void)
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 1000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
@@ -128,15 +128,43 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+void reconfigureToForceOutput()
+{
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
+	
+	sConfigOC.OCMode = TIM_OCMODE_FORCED_ACTIVE;
+	sConfigOC.Pulse = 0;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) {
+		Error_Handler();
+	}
+}
+void reconfigureToBlink()
+{
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
+	
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = 1000;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) {
+		Error_Handler();
+	}
+}
 void blinkD1(bool newState)
 {
 	if (newState) 
 	{
+		HAL_TIM_OC_Stop(&htim3, TIM_CHANNEL_4);
+		reconfigureToBlink();
 		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 	} 
 	else
 	{
 		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+		reconfigureToForceOutput();
+		HAL_TIM_OC_Start(&htim3, TIM_CHANNEL_4);
 	}
 }
 /* USER CODE END 1 */

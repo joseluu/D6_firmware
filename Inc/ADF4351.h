@@ -76,8 +76,8 @@
 #define R_COUNTER_SHIFT 14
 #define R_COUNTER_MASK 0x3FF // 10 bits
 
-#define DOUB_BUF_ENABLE	 0x00002000 //for the RF DIVIDER setting in R4
-#define DOUB_BUF_DISABLE 0x00000000
+#define DOUBLE_BUFFERING_ENABLE	 0x00002000 //for the RF DIVIDER setting in R4 to wait for R0
+#define DOUBLE_BUFFERING_DISABLE 0x00000000
 
 #define CHARGE_CURRENT_5MA 0x00001E00 //5mA	(5.1k) value depends on loop filter design
 #define CHARGE_CURRENT_2_5MA 0x00000E00 //2.5mA	(5.1k) value depends on loop filter design

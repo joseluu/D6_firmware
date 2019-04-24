@@ -50,6 +50,7 @@ public:
 	SerialInput(UART_HandleTypeDef * pHandle, char * buffer, unsigned int size);
 	void initialize(SerialOutput * echoChannel = NULL);
 	void doInputIT();
+	bool fgetc(unsigned char & c); // non blocking
 	char * fgets(char * str, int size);
 	bool isCharAvailable();
 	char * fgetsNonBlocking(char * str, int size);

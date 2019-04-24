@@ -38,8 +38,7 @@ static SerialInput* pSerialIn;
 
 typedef enum {
 	eInteractive,	// command interpreter user friendly
-	eDWT,			// DWT mode
-	eAD				// analog device firmware
+	eDWT			// DWT mode
 } eInputProtocol_t;
 
 eInputProtocol_t inputProtocolState;
@@ -57,15 +56,6 @@ void initializeListener()
 	analyzerStandbyLedOn(true);
 	DebouncedButton::addButton(button);
 }
-
-void doInteractive(char c)
-{
-}
-void doAD(char c)
-{
-}
-
-void doNWT(char c);
 
 void sendChar(char c)
 {
@@ -140,9 +130,13 @@ bool getInputC(char & c)
 	return false;
 }
 
+void doInteractive(unsigned char)
+{
+}
+
 void doListen()
 {
-	char c;
+	unsigned char c;
 
 	do
 	{
@@ -151,7 +145,7 @@ void doListen()
 		bool pushedButton = buttonChanged && (buttonStateDown);
 		executeButtonAction(pushedButton);
 	}
-	while (!getInputC(c))
+	while (!pSerialIn->fgetc(c))
 		;
 
 	switch (inputProtocolState)
@@ -162,10 +156,35 @@ void doListen()
 	case eDWT:
 		doNWT(c);
 		break;
-	case eAD:
-		doAD(c);
+	}
+}
+
+typedef enum {
+	undef = 0 ,
+	samplingBits,
+	serialSpeed,
+	outputLevelTrackingGenerator,
+	outputLevelAnalyzerGenerator,
+	fullName,
+	phaseVNA,
+	offsetFI
+} Caps;
+bool getReadCapabilities(Command &command)
+{
+	unsigned char c;
+	while (!pSerialIn->fgetc(c)) ;
+	switch (c) 
+	{
+	case 1:
 		break;
 	}
+	return true;
+	
+}
+
+bool getWriteCapabilities(Command &command)
+{
+	return true;
 }
 
 
@@ -180,7 +199,7 @@ typedef enum {
 												{ \
 													state = eFrame; \
 												}
-void doNWT(char c)
+void doNWT(unsigned char c)
 {
 	static eState state = eFrame;
 	Command command;
@@ -229,8 +248,11 @@ void doNWT(char c)
 			bCommandReady = true;
 			break;
 		case 'g':// read capability parameters
+			RESTART_IF_FAILED(getReadCapabilities(command));
+			bCommandReady = true;
 			break;
 		case 'h':// set capability parameters
+			RESTART_IF_FAILED(getWriteCapabilities(command));
 			bCommandReady = true;
 			break;
 		case 'i': // immediate programming 6 bytes command: Which ADF, register

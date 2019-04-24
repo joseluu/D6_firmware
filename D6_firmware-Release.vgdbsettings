@@ -7,9 +7,15 @@
       <PathStyle>MinGWUnixSlash</PathStyle>
     </CustomSourceDirectories>
     <MainSourceDirectory>$(ProjectDir)</MainSourceDirectory>
+    <ExportAdvancedBuildVariables>false</ExportAdvancedBuildVariables>
     <EmbeddedProfileFile>stm32.xml</EmbeddedProfileFile>
   </Project>
   <Build xsi:type="com.visualgdb.build.embedded">
+    <ToolchainID>
+      <Version>
+        <Revision>0</Revision>
+      </Version>
+    </ToolchainID>
     <MakeFilePathRelativeToSourceDir>Makefile</MakeFilePathRelativeToSourceDir>
     <MakeConfigurationName>Release</MakeConfigurationName>
     <AdditionalMakeArguments>$(LocalMultiThreadedBuildFlags)</AdditionalMakeArguments>
@@ -33,11 +39,45 @@
             <Value>$(TOOLCHAIN_ROOT)\bin;%PATH%</Value>
           </Record>
         </Records>
+        <EnvironmentSetupFiles />
       </Environment>
       <BackgroundMode xsi:nil="true" />
     </MakeCommandTemplate>
     <ShowMemoryUtilizationSummary>true</ShowMemoryUtilizationSummary>
   </Build>
+  <CustomBuild>
+    <PreSyncActions />
+    <PreBuildActions />
+    <PostBuildActions />
+    <PreCleanActions />
+    <PostCleanActions />
+  </CustomBuild>
+  <CustomDebug>
+    <PreDebugActions />
+    <PostDebugActions />
+    <DebugStopActions />
+    <BreakMode>Default</BreakMode>
+  </CustomDebug>
+  <CustomShortcuts>
+    <Shortcuts />
+    <ShowMessageAfterExecuting>true</ShowMessageAfterExecuting>
+  </CustomShortcuts>
+  <UserDefinedVariables />
+  <ImportedPropertySheets />
+  <CodeSense>
+    <Enabled>Unknown</Enabled>
+    <ExtraSettings>
+      <HideErrorsInSystemHeaders>true</HideErrorsInSystemHeaders>
+      <SupportLightweightReferenceAnalysis>false</SupportLightweightReferenceAnalysis>
+      <CheckForClangFormatFiles xsi:nil="true" />
+      <FormattingEngine xsi:nil="true" />
+    </ExtraSettings>
+    <CodeAnalyzerSettings>
+      <Enabled>false</Enabled>
+    </CodeAnalyzerSettings>
+  </CodeSense>
+  <Configurations />
+  <ProgramArgumentsSuggestions />
   <Debug xsi:type="com.visualgdb.debug.embedded">
     <AdditionalStartupCommands />
     <AdditionalGDBSettings>
@@ -68,108 +108,91 @@
       <DisableSignals>false</DisableSignals>
       <EnableAsyncExecutionMode>false</EnableAsyncExecutionMode>
       <EnableNonStopMode>false</EnableNonStopMode>
+      <MaxBreakpointLimit>0</MaxBreakpointLimit>
     </AdditionalGDBSettings>
-    <DebugMethodID>com.sysprogs.arm.openocd</DebugMethodID>
-    <DebugMethodProperties>
-      <Entries>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.interface</Key>
-          <Value>interface/stlink-v2.cfg</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.cpu</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.chip</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.board</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.target</Key>
-          <Value>target/stm32f1x.cfg</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.extraargs</Key>
-          <Value>-c init -c "reset init"</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.initargs</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.commands.halt</Key>
-          <Value>mon halt</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.commands.program</Key>
-          <Value>load</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.commands.autoprogram</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.commands.reset</Key>
-          <Value>mon reset init</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.commands.resetafter</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.quicksetup.enabled</Key>
-          <Value>1</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.delay</Key>
-          <Value>0</Value>
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.transport</Key>
-          <Value />
-        </KeyValue>
-        <KeyValue>
-          <Key>com.sysprogs.arm.openocd.quicksetup.interface</Key>
-          <Value>stlink-v2</Value>
-        </KeyValue>
-      </Entries>
-    </DebugMethodProperties>
+    <DebugMethod>
+      <ID>com.sysprogs.arm.openocd</ID>
+      <Configuration>
+        <Entries>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.interface</Key>
+            <Value>interface/stlink-v2.cfg</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.cpu</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.chip</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.board</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.target</Key>
+            <Value>target/stm32f1x.cfg</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.extraargs</Key>
+            <Value>-c init -c "reset init"</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.initargs</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.commands.halt</Key>
+            <Value>mon halt</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.commands.program</Key>
+            <Value>load</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.commands.autoprogram</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.commands.reset</Key>
+            <Value>mon reset init</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.commands.resetafter</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.quicksetup.enabled</Key>
+            <Value>1</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.delay</Key>
+            <Value>0</Value>
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.transport</Key>
+            <Value />
+          </KeyValue>
+          <KeyValue>
+            <Key>com.sysprogs.arm.openocd.quicksetup.interface</Key>
+            <Value>stlink-v2</Value>
+          </KeyValue>
+        </Entries>
+      </Configuration>
+    </DebugMethod>
     <AutoDetectRTOS>true</AutoDetectRTOS>
     <SemihostingSupport>Auto</SemihostingSupport>
+    <SemihostingPollingDelay>0</SemihostingPollingDelay>
     <StepIntoEntryPoint>false</StepIntoEntryPoint>
     <ReloadFirmwareOnReset>false</ReloadFirmwareOnReset>
     <ValidateEndOfStackAddress>true</ValidateEndOfStackAddress>
     <StopAtEntryPoint>false</StopAtEntryPoint>
+    <EnableVirtualHalts>false</EnableVirtualHalts>
     <DynamicAnalysisSettings />
     <EndOfStackSymbol>_estack</EndOfStackSymbol>
+    <TimestampProviderTicksPerSecond>0</TimestampProviderTicksPerSecond>
+    <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
+    <CheckInterfaceDrivers>true</CheckInterfaceDrivers>
   </Debug>
-  <CustomBuild>
-    <PreSyncActions />
-    <PreBuildActions />
-    <PostBuildActions />
-    <PreCleanActions />
-    <PostCleanActions />
-  </CustomBuild>
-  <CustomDebug>
-    <PreDebugActions />
-    <PostDebugActions />
-    <DebugStopActions />
-    <BreakMode>Default</BreakMode>
-  </CustomDebug>
-  <CustomShortcuts>
-    <Shortcuts />
-    <ShowMessageAfterExecuting>true</ShowMessageAfterExecuting>
-  </CustomShortcuts>
-  <UserDefinedVariables />
-  <ImportedPropertySheets />
-  <CodeSense>
-    <Enabled>Unknown</Enabled>
-    <ExtraSettings>
-      <HideErrorsInSystemHeaders>true</HideErrorsInSystemHeaders>
-    </ExtraSettings>
-  </CodeSense>
 </VisualGDBProjectSettings2>

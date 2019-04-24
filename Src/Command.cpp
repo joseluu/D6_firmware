@@ -24,6 +24,8 @@
 #include "Serial.h"
 #include "Command.h"
 
+#define STR(s) #s
+char firmwareVersion[] = "D6 Simple Spectrum firmware by Jose F1FGV Version " STR(FIRMWARE_VERSION);
 
 static unsigned long delayFactor = 100;
 static long analyzerOffset = 128000;
@@ -114,6 +116,9 @@ void executeCommand(Command command)
 		if (isTrackingEnabled()) {
 			if (frequencySetup(eTracking, command.frequency, 4, range, false)) {
 				analyzerStandbyLedOn(!frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, true));
+			} else {
+				analyzerStandbyLedOn(true);
+				ADF4351Off(eAnalyzer);
 			}
 		} else {
 			analyzerStandbyLedOn(!frequencySetup(eAnalyzer, command.frequency + analyzerOffset, 4, range, false));
@@ -157,7 +162,7 @@ void executeCommand(Command command)
 		sendStatus();
 		break;
 	case 'v': // version
-		sendChar(2);
+		sendChar(FIRMWARE_VERSION);
 		break;
 
 	}
