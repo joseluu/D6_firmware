@@ -30,6 +30,7 @@
 /* USER CODE BEGIN Includes */
 #include "D6Board.h"
 #include "Loop.h"
+#include "eeprom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +52,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint16_t VirtAddVarTab[NB_OF_VAR] = { 0x5555, 0x6666, 0x7777 };
+uint16_t VarDataTab[NB_OF_VAR] = { 0, 0, 0 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,7 +127,10 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    /* Unlock the Flash Program Erase controller */
+	HAL_FLASH_Unlock();
+	/* EEPROM Init */
+	EE_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -198,6 +203,27 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void EEProm_Store(unsigned long val, unsigned short address)
+{
+	unsigned short varShort[2];
+
+	varShort[0] = val & 0xFFFF;
+	varShort[1] = val >> 16;
+	EE_WriteVariable(address * 2, varShort[0]);
+	EE_WriteVariable(address * 2 + 1, varShort[1]);
+ 
+}
+
+unsigned long EEProm_Read(unsigned short address)
+{
+	unsigned short varShort[2];
+	unsigned long value;
+
+	EE_ReadVariable(address * 2, &varShort[0]);
+	EE_ReadVariable(address * 2 + 1, &varShort[1]);
+	value = varShort[1] << 16 | varShort[0];
+}
 
 /* USER CODE END 4 */
 

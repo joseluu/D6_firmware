@@ -19,7 +19,9 @@
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
-#define FIRMWARE_VERSION 4
+#define FIRMWARE_VERSION 5
+
+#define FIRMWARE_ENGINEERING_VARIANT 0
 
 void doInteractive(char c);
 void doNWT(unsigned char c);

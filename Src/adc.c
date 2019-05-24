@@ -128,6 +128,24 @@ bool getADCMeasurement(short * val)
 	HAL_ADC_Stop(&hadc1);
 	return bValue;
 }
+bool getADCMeasurementN(short * val,int n)
+{
+	g_ADCValue = 0;
+	bool bValue = false;
+	for (int i=0;i<n;i++) 
+	{
+		HAL_ADC_Start(&hadc1);
+		if (HAL_ADC_PollForConversion(&hadc1, 1000000) == HAL_OK) {
+			g_ADCValue += HAL_ADC_GetValue(&hadc1);
+			g_MeasurementNumber++;
+
+		}
+		HAL_ADC_Stop(&hadc1);
+	}
+	*val = g_ADCValue/n;
+	bValue = true;
+	return bValue;
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

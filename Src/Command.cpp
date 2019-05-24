@@ -69,8 +69,8 @@ long getAnalyzerOffset(void)
 }
 void sendStatus()
 {
-	sendChar(0xFF);
-	sendChar(0xFF);
+	sendChar(FIRMWARE_VERSION);
+	sendChar(FIRMWARE_ENGINEERING_VARIANT);
 	sendChar(0xFF);
 	sendChar(0xFF);
 }
@@ -80,7 +80,7 @@ void sendMeasurement()
 	short value = 0;
 	char cValue[2] = { 0, 0 };
 	if (getADCMeasurement(&value)) {
-		value /= 4; // use 10 bits
+//		value /= 4 ; // use 10 bits
 		memcpy(cValue, &value, 2);
 		sendChar(cValue[0]);
 		sendChar(cValue[1]);

@@ -42,6 +42,7 @@ void MX_ADC1_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 	 bool getADCMeasurement(short * val);
+	 bool getADCMeasurementN(short * val, int n);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
