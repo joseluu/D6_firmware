@@ -21,7 +21,7 @@
 
 #define FIRMWARE_VERSION 5
 
-#define FIRMWARE_ENGINEERING_VARIANT 1
+#define FIRMWARE_ENGINEERING_VARIANT 2
 
 void doInteractive(char c);
 void doNWT(unsigned char c);
