@@ -28,7 +28,7 @@
 char firmwareVersion[] = "D6 Simple Spectrum firmware by Jose F1FGV Version " STR(FIRMWARE_VERSION);
 
 static unsigned long delayFactor = 100;
-static long analyzerOffset = 21400000;
+static long analyzerOffset = 10700000;
 static bool trackingGeneratorEnabled = false;
 
 void analyzerStandbyLedOn(bool newState)
