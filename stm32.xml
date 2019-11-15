@@ -7,7 +7,7 @@
     <Revision>3</Revision>
   </ToolchainVersion>
   <BspID>com.sysprogs.arm.stm32</BspID>
-  <BspVersion>2018.12R2</BspVersion>
+  <BspVersion>2019.06</BspVersion>
   <McuID>STM32F103C8</McuID>
   <MCUDefinitionFile>STM32F1xxxx/DeviceDefinitions/stm32f103xb.xml</MCUDefinitionFile>
   <MCUProperties>
@@ -34,6 +34,7 @@
   <MCUMakFile>stm32.mak</MCUMakFile>
   <ReferencedFrameworks>
     <string>com.sysprogs.arm.stm32.hal</string>
+    <string>com.sysprogs.arm.stm32.STM32F1_ll</string>
   </ReferencedFrameworks>
   <FrameworkProperties>
     <Entries>
@@ -43,6 +44,10 @@
       </KeyValue>
       <KeyValue>
         <Key>com.sysprogs.stm32.legacy_hal_src</Key>
+        <Value />
+      </KeyValue>
+      <KeyValue>
+        <Key>com.sysprogs.bspoptions.stm32.ll_driver</Key>
         <Value />
       </KeyValue>
     </Entries>

@@ -63,6 +63,8 @@ void delay_us_DWT(unsigned long uSec);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define AD8307_EN_Pin GPIO_PIN_15
+#define AD8307_EN_GPIO_Port GPIOC
 #define ADC_Pin GPIO_PIN_3
 #define ADC_GPIO_Port GPIOA
 #define LEA_Pin GPIO_PIN_4
