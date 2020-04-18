@@ -1,8 +1,8 @@
 # D6_firmware
 
-This is an alternate firmware for the D6 board
+This is an alternate firmware for the D6 spectrum analyzer with tracking source
 
-Warning: work in progress, code is now beta, looking for testers
+D6 board can also be used with the ADI PLL test software ADF435x (use the modified version in the ADF435x repo)
 
 discussions en francais sur le sujet, voir ici: https://gitter.im/D6_firmware/D6_en_fran%C3%A7ais
 
