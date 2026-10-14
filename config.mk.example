@@ -1,0 +1,32 @@
+# Copier ce fichier en config.mk (non versionné) et adapter les chemins à votre machine.
+# Chaque variable peut aussi être passée en ligne de commande (make VAR=...) ou dans l'environnement.
+# Les lignes commentées montrent la valeur détectée par défaut.
+
+# Racine de STM32CubeCLT (défaut : le plus récent /opt/st/stm32cubeclt_*)
+#STM32CUBECLT_PATH = /opt/st/stm32cubeclt_1.21.0
+
+# Répertoire bin de la toolchain arm-none-eabi
+# (défaut : $(STM32CUBECLT_PATH)/GNU-tools-for-STM32/bin, sinon le PATH)
+#GCC_PATH = /opt/st/stm32cubeclt_1.21.0/GNU-tools-for-STM32/bin
+# Toolchain ARM GNU (developer.arm.com) ou paquet de la distribution :
+#GCC_PATH = /opt/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/bin
+#GCC_PATH =
+
+# Package firmware STM32CubeF1 (défaut : le plus récent ~/STM32Cube/Repository/STM32Cube_FW_F1_V*,
+# sinon third_party/STM32CubeF1 rempli par "make hal")
+#STM32CUBE_FW_F1 = $(HOME)/STM32Cube/Repository/STM32Cube_FW_F1_V1.8.7
+
+# Ou chaque composant séparément
+#HAL_DRIVER_DIR   = $(STM32CUBE_FW_F1)/Drivers/STM32F1xx_HAL_Driver
+#CMSIS_DEVICE_DIR = $(STM32CUBE_FW_F1)/Drivers/CMSIS/Device/ST/STM32F1xx
+#CMSIS_CORE_DIR   = $(STM32CUBE_FW_F1)/Drivers/CMSIS
+
+# Programmation et debug
+#STM32_PROGRAMMER_PATH = $(STM32CUBECLT_PATH)/STM32CubeProgrammer/bin
+#STM32_PROGRAMMER_CLI  = $(STM32_PROGRAMMER_PATH)/STM32_Programmer_CLI
+#STLINK_GDBSERVER      = $(STM32CUBECLT_PATH)/STLink-gdb-server/bin/ST-LINK_gdbserver
+#STLINK_PORT = SWD
+#GDB_PORT    = 61234
+
+# Configuration par défaut (Debug ou Release)
+#CONFIG = Debug
