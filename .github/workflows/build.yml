@@ -1,0 +1,65 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Même version majeure de GCC que STM32CubeCLT 1.21 (GCC 14)
+  XPACK_GCC_VERSION: 14.2.1-1.1
+  XPACK_GCC_SHA256: ed8c7d207a85d00da22b90cf80ab3b0b2c7600509afadf6b7149644e9d4790a6
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache toolchain
+        id: cache-gcc
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/xpack-arm-none-eabi-gcc-${{ env.XPACK_GCC_VERSION }}
+          key: xpack-arm-none-eabi-gcc-${{ env.XPACK_GCC_VERSION }}-linux-x64
+
+      - name: Install toolchain
+        if: steps.cache-gcc.outputs.cache-hit != 'true'
+        run: |
+          cd "$RUNNER_TEMP"
+          archive=xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION-linux-x64.tar.gz
+          curl -sSfL -o "$archive" \
+            "https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases/download/v$XPACK_GCC_VERSION/$archive"
+          echo "$XPACK_GCC_SHA256  $archive" | sha256sum -c -
+          tar xzf "$archive"
+
+      - name: Cache HAL STM32F1
+        uses: actions/cache@v4
+        with:
+          path: third_party
+          key: stm32cubef1-${{ hashFiles('mk/stm32f1.mk', 'scripts/fetch_hal.sh') }}
+
+      - name: Fetch HAL
+        run: make hal
+
+      - name: Build firmware
+        run: make -j"$(nproc)" CONFIG=${{ matrix.config }} GCC_PATH="$RUNNER_TEMP/xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION/bin"
+
+      - name: Build blink test
+        run: make -j"$(nproc)" -C tests/D6_blinkTest CONFIG=${{ matrix.config }} GCC_PATH="$RUNNER_TEMP/xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION/bin"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: D6_firmware-${{ matrix.config }}
+          path: |
+            build/${{ matrix.config }}/D6_firmware.elf
+            build/${{ matrix.config }}/D6_firmware.hex
+            build/${{ matrix.config }}/D6_firmware.bin
+            build/${{ matrix.config }}/D6_firmware.map

@@ -11,7 +11,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 3 | Avertissements de compilation | fait |
 | 4 | Appels système newlib | fait |
 | 5 | Makefile `tests/D6_blinkTest` | fait |
-| 6 | Intégration continue GitHub Actions | à faire |
+| 6 | Intégration continue GitHub Actions | fait |
 | 7 | Debug en ligne de commande | à faire |
 | 8 | Test de fumée hors matériel | à faire |
 | 9 | Documentation finale | à faire |
@@ -97,3 +97,12 @@ Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Re
 - Vérifications :
   - les .bin du firmware sont identiques octet pour octet à ceux du commit précédent, en Debug et en Release (le découpage est neutre) ;
   - `make -C tests/D6_blinkTest` (Debug 1 820 o, Release 2 304 o) : 0 avertissement.
+
+### Étape 6 : intégration continue GitHub Actions
+- `.github/workflows/build.yml` : à chaque push et pull request, sur ubuntu-24.04, en Debug et en Release :
+  - installation de la toolchain xPack GCC 14.2.1-1.1 (même version majeure que STM32CubeCLT 1.21), vérifiée par SHA-256 et mise en cache ;
+  - `make hal` (avec cache) ;
+  - build du firmware et du test blink ;
+  - publication des `.elf`, `.hex`, `.bin` et `.map` en artefacts.
+- STM32CubeCLT n'est pas utilisé en CI : son téléchargement exige un compte st.com et l'acceptation de la licence.
+- Les commandes du workflow ont été rejouées en local sur une copie des fichiers suivis par git : OK.
