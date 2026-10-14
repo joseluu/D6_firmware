@@ -8,7 +8,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 0 | Réparer le commit initial | fait |
 | 1 | Toolchain GCC 14 | fait |
 | 2 | Audit de compatibilité HAL v1.1.10 | fait |
-| 3 | Avertissements de compilation | à faire |
+| 3 | Avertissements de compilation | fait |
 | 4 | Appels système newlib | à faire |
 | 5 | Makefile `tests/D6_blinkTest` | à faire |
 | 6 | Intégration continue GitHub Actions | à faire |
@@ -36,7 +36,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 
 | GCC | Config | Flash | RAM | Avertissements |
 |-----|--------|-------|-----|----------------|
-| 13.2.1 (Ubuntu) | Debug | 21 684 o | 2 788 o | 30 |
+| 13.2.1 (Ubuntu) | Debug | 21 684 o | 2 788 o | 31 |
 | 14.2.1 (xPack) | Debug | 20 428 o | 2 784 o | 31 |
 | 14.2.1 (xPack) | Release | 22 496 o | 2 792 o | 33 |
 | 15.2.1 (xPack) | Debug | 20 564 o | 2 784 o | 31 |
@@ -58,3 +58,26 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
   - tous les handlers d'interruption du code (`SysTick`, `USART1`, `ADC1_2`, `DMA1_Channel5`, les exceptions Cortex) sont des symboles forts présents dans la table des vecteurs ;
   - les callbacks HAL définis en C++ (`HAL_UART_RxCpltCallback`, `TxCplt`, `Error`) sont bien en `extern "C"` et remplacent les versions `weak` du HAL ;
   - la table des vecteurs est à 0x08000000 et `_estack` vaut 0x20005000.
+
+### Étape 3 : avertissements de compilation
+Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Release, avec GCC 13.2, 14.2 et 15.2.
+
+| GCC | Debug | Release |
+|-----|-------|---------|
+| 13.2.1 | 21 904 o | 23 712 o |
+| 14.2.1 | 20 448 o | 22 516 o |
+| 15.2.1 | 20 580 o | 23 348 o |
+
+**Corrections qui changent le comportement (vrais bugs) :**
+- `Src/Serial.cpp`, `fgetc` et `fgetsNonBlocking` décalaient le tampon de réception sur lui-même avec `strncpy`. Les zones se recouvrent, ce qui est un comportement indéfini. En plus, `strncpy` s'arrête au premier octet nul et remplit la suite de zéros, ce qui corrompait les données binaires reçues (commandes NWT `i`, via `getInputBinary`). Remplacé par `memmove`.
+- `Src/Loop.cpp`, `getInputBinary(unsigned long&)` : `inputBytes[3] << 24` décalait un `int` jusque dans le bit de signe dès que l'octet valait 0x80 ou plus (comportement indéfini). Conversion en `unsigned long` avant le décalage.
+
+**Corrections sans effet sur le comportement :**
+- ordre des listes d'initialisation (`Serial.h`/`.cpp`, `debouncedButton.h`) ;
+- variables et instruction inutilisées (`Loop.cpp`, `Register_Set` dans `ADF4351.cpp`) ;
+- comparaison signé/non signé ;
+- `default:` dans le `switch` de `doNWT` ;
+- dans les callbacks UART, `return` après `Error_Handler()` (qui ne rend jamais la main) ; l'avertissement « maybe-uninitialized » était un faux positif ;
+- le code d'erreur UART est rangé dans une globale `volatile uartLastError`, mise à jour à chaque appel, à la place d'une `static` locale initialisée une seule fois.
+
+**Observation non corrigée (comportement du protocole, à décider) :** dans `doNWT`, `RESTART_IF_FAILED` remet `state = eFrame` mais n'interrompt pas l'analyse. `bCommandReady` passe ensuite à `true` et la commande est exécutée quand même avec des arguments incomplets. Par ailleurs, après une commande sans `bCommandReady` (`e`, `m`, `n`, `o`, `r`, ou un code inconnu), l'état reste `eCode`.

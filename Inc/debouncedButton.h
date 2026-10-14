@@ -54,9 +54,9 @@ public:
 	DebouncedButton(GPIO_TypeDef  *GPIOx, uint16_t GPIO_Pin, int debounceThreshold = 50)
 		: GPIOx(GPIOx)
 		, GPIO_Pin(GPIO_Pin)
-		, debounceThreshold(debounceThreshold)
 		, buttonPressed_0(0)
 		, buttonPressed_1(0)
+		, debounceThreshold(debounceThreshold)
 		, buttonPressConfirmed(false)
 		, buttonPressChanged(false)
 	{	

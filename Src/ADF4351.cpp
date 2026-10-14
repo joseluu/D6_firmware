@@ -25,7 +25,6 @@
 #define ADF_COUNT 2
 #define ADF_REGISTER_COUNT 6
 
-static unsigned long Register_Set[ADF_COUNT][ADF_REGISTER_COUNT];
 static unsigned long Register_SetPrevious[ADF_COUNT][ADF_REGISTER_COUNT];
 
 void ADF4351Off(WhichADF indexADF);

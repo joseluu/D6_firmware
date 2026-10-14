@@ -31,9 +31,9 @@ void SerialInput::initialize(SerialOutput * echoChannel)
 }
 
 SerialInput::SerialInput(UART_HandleTypeDef * pHandle, char * buffer, unsigned int size)
-	: pHandle(pHandle)
-	, driverBuffer (buffer)
+	: driverBuffer (buffer)
 	, driverBufferSize (size)
+	, pHandle(pHandle)
 {
 	driverBufferNextChar = buffer;
 	nChars = 0;
@@ -72,7 +72,7 @@ bool SerialInput::fgetc(unsigned char & c) // non blocking
 	}
 	const int sizeUseful = 1; // read one character
 	c = driverBuffer[0];
-	strncpy(driverBuffer, &driverBuffer[1], nChars - sizeUseful);
+	memmove(driverBuffer, &driverBuffer[1], nChars - sizeUseful);
 	nChars -= sizeUseful;
 	driverBufferNextChar = &driverBuffer[nChars];
 	return true;
@@ -87,7 +87,7 @@ char *  SerialInput::fgetsNonBlocking(char * str, int size)
 		sizeUseful = size - 1;
 		strncpy(str, driverBuffer, sizeUseful); //toto: verify chars are not lost
 		str[sizeUseful] = 0;
-		strncpy(driverBuffer, &driverBuffer[sizeUseful], nChars - sizeUseful);
+		memmove(driverBuffer, &driverBuffer[sizeUseful], nChars - sizeUseful);
 		nChars -= sizeUseful;
 		driverBufferNextChar = &driverBuffer[nChars];
 		goto cleanup;
@@ -113,7 +113,7 @@ void SerialInput::doInputIT(void)
 			echo->putch('\n');
 		}
 	}
-	if ((driverBufferNextChar - driverBuffer) >= driverBufferSize) {
+	if ((unsigned int)(driverBufferNextChar - driverBuffer) >= driverBufferSize) {
 		overrun++;
 	} else {
 		if (textMode) {
@@ -153,20 +153,18 @@ void SerialInput::doInputIT(void)
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
-	SerialInput * serialObject;
-	if (UartHandle == &ACTIVE_UART) {
-		serialObject  = SerialInput::ACTIVE_CHANNEL;
-	} else {
+	if (UartHandle != &ACTIVE_UART) {
 		Error_Handler();
+		return;
 	}
 	__HAL_UART_FLUSH_DRREGISTER(UartHandle); // Clear the buffer to prevent overrun
-	serialObject->doInputIT();
+	SerialInput::ACTIVE_CHANNEL->doInputIT();
 }
 
 SerialOutput::SerialOutput(UART_HandleTypeDef * pHandle, char * driverBuffer, unsigned int size)
-	: pHandle(pHandle)
-	, driverBuffer(driverBuffer)
+	: driverBuffer(driverBuffer)
 	, driverBufferSize(size)
+	, pHandle(pHandle)
 {
 	busy = false;
 	if (pHandle == &ACTIVE_UART) {
@@ -223,14 +221,14 @@ void SerialOutput::doOutputIT()
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
-	SerialOutput * serialObject;
-	if (UartHandle == &ACTIVE_UART) {
-		serialObject  = SerialOutput::ACTIVE_CHANNEL;
-	} else {
+	if (UartHandle != &ACTIVE_UART) {
 		Error_Handler();
+		return;
 	}
-	serialObject->doOutputIT();
+	SerialOutput::ACTIVE_CHANNEL->doOutputIT();
 }
+
+volatile uint32_t uartLastError; // last UART error code, for inspection with the debugger
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
@@ -241,7 +239,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 //	HAL_UART_ERROR_ORE       = 0x08,    /*!< Overrun error       */
 //	HAL_UART_ERROR_DMA       = 0x10,    /*!< DMA transfer error  */
 //	HAL_UART_ERROR_BUSY      = 0x20     /*!< Busy Error          */
-	static int nLastError = huart->ErrorCode;
+	uartLastError = huart->ErrorCode;
 	Error_Handler();
 }
 

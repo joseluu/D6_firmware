@@ -65,29 +65,24 @@ void sendChar(char c)
 bool getInputBinary(unsigned long &longValue, unsigned int timeoutMs)
 {
 	char cNext[2];
-	char c;
 	unsigned char inputBytes[4];
-	int inputCount = 0;
-	unsigned long inputValue = 0;
-	while (inputCount < sizeof(longValue)) {
+	unsigned int inputCount = 0;
+	while (inputCount < sizeof(inputBytes)) {
 		if (pSerialIn->fgetsNonBlocking(cNext, 2) != NULL) {
 			inputBytes[inputCount]=cNext[0];
 			inputCount++;
 		}
 		// check for timeout
 	}
-	longValue = inputBytes[0] | inputBytes[1] << 8 | inputBytes[2] << 16 | inputBytes[3] <<24;
+	longValue = (unsigned long)inputBytes[0] | (unsigned long)inputBytes[1] << 8 | (unsigned long)inputBytes[2] << 16 | (unsigned long)inputBytes[3] << 24;
 	return true;
 }
 bool getInputBinary(unsigned char &byteValue, unsigned int timeoutMs)
 {
 	char cNext[2];
-	char c;
 	unsigned int inputBytes = 0;
-	int inputValue = 0;
 	while (inputBytes < sizeof(byteValue)) {
 		if (pSerialIn->fgetsNonBlocking(cNext, 2) != NULL) {
-			cNext[0];
 			byteValue = cNext[0];
 			inputBytes++;
 		}
@@ -220,7 +215,6 @@ void doNWT(unsigned char c)
 		{
 		case 'a'://sweep with us delay between measurement and audiosens, 27 bytes command, returns log measurement n x 2 x 2 bytes
 		case 'b'://sweep with us delay between measurement and audiosens, 27 bytes command, returns linear measurement n x 2 x 2 bytes
-			int ff;
 			RESTART_IF_FAILED(getInputInt(command.frequency, 9, 0));
 			RESTART_IF_FAILED(getInputInt(command.step, 8, 0));
 			RESTART_IF_FAILED(getInputInt(command.count, 4, 0));
@@ -288,6 +282,9 @@ void doNWT(unsigned char c)
 			bCommandReady = true;
 			break;
 		}
+		break;
+	default:
+		break;
 	}
 	if (bCommandReady)
 	{
