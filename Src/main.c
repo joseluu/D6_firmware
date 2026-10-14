@@ -222,7 +222,8 @@ unsigned long EEProm_Read(unsigned short address)
 
 	EE_ReadVariable(address * 2, &varShort[0]);
 	EE_ReadVariable(address * 2 + 1, &varShort[1]);
-	value = varShort[1] << 16 | varShort[0];
+	value = (unsigned long)varShort[1] << 16 | varShort[0];
+	return value;
 }
 
 /* USER CODE END 4 */

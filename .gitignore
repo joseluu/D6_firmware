@@ -8,3 +8,6 @@ Inc/Backup
 VisualGDBCache
 *.VC.db
 *.old
+build/
+third_party/
+config.mk

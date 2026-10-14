@@ -19,7 +19,7 @@
         <Revision>3</Revision>
       </Version>
     </ToolchainID>
-    <MakeFilePathRelativeToSourceDir>Makefile</MakeFilePathRelativeToSourceDir>
+    <MakeFilePathRelativeToSourceDir>Makefile.visualgdb</MakeFilePathRelativeToSourceDir>
     <MakeConfigurationName>Release</MakeConfigurationName>
     <AdditionalMakeArguments>$(LocalMultiThreadedBuildFlags)</AdditionalMakeArguments>
     <MakeCommandTemplate>

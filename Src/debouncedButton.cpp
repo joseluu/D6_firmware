@@ -99,7 +99,7 @@ extern "C" {
 
 	bool DebouncedButton_buttonState(int index, bool * changed)
 	{
-		DebouncedButton::allButtons[index]->buttonState(changed);
+		return DebouncedButton::allButtons[index]->buttonState(changed);
 	}
 
 	int DebouncedButton_addNewButton(GPIO_TypeDef  *GPIOx, uint16_t GPIO_Pin)

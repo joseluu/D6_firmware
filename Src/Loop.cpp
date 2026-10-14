@@ -93,6 +93,7 @@ bool getInputBinary(unsigned char &byteValue, unsigned int timeoutMs)
 		}
 		// check for timeout
 	}
+	return true;
 }
 bool getInputInt(long long &value, unsigned int nbDigits, unsigned int timeoutMs)
 {

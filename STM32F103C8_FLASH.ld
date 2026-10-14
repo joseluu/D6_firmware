@@ -41,7 +41,9 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 64K
+/* Flash limited to 32K: pages from 0x08008000 (ADDR_FLASH_PAGE_32) are used by
+   the EEPROM emulation (see Inc/eeprom.h), the code must not overlap them. */
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 32K
 }
 
 /* Define output sections */
