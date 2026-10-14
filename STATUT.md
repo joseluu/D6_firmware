@@ -9,7 +9,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 1 | Toolchain GCC 14 | fait |
 | 2 | Audit de compatibilité HAL v1.1.10 | fait |
 | 3 | Avertissements de compilation | fait |
-| 4 | Appels système newlib | à faire |
+| 4 | Appels système newlib | fait |
 | 5 | Makefile `tests/D6_blinkTest` | à faire |
 | 6 | Intégration continue GitHub Actions | à faire |
 | 7 | Debug en ligne de commande | à faire |
@@ -81,3 +81,10 @@ Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Re
 - le code d'erreur UART est rangé dans une globale `volatile uartLastError`, mise à jour à chaque appel, à la place d'une `static` locale initialisée une seule fois.
 
 **Observation non corrigée (comportement du protocole, à décider) :** dans `doNWT`, `RESTART_IF_FAILED` remet `state = eFrame` mais n'interrompt pas l'analyse. `bCommandReady` passe ensuite à `true` et la commande est exécutée quand même avec des arguments incomplets. Par ailleurs, après une commande sans `bCommandReady` (`e`, `m`, `n`, `o`, `r`, ou un code inconnu), l'état reste `eCode`.
+
+### Étape 4 : appels système newlib
+- Origine des avertissements : `operator new` (libstdc++) mène à `abort`, `raise`, `_kill` et `_getpid`, et le stdio de newlib-nano tire `_write`, `_read`, `_close` et `_lseek`. Avec `--specs=nosys.specs`, ces fonctions venaient de libnosys, sous forme de bouchons qui déclenchent l'avertissement « is not implemented ».
+- Après le ramasse-miettes du linker (`--gc-sections`), `_write`, `_read`, `_close` et `_lseek` n'étaient de toute façon pas dans le binaire. En revanche, `_sbrk` (utilisé par les deux `new` de l'initialisation) restait la version libnosys, qui ne vérifie pas que le tas ne déborde pas sur la pile.
+- Solution : ajout au build de `Src/syscalls.c`, déjà présent dans le dépôt (version Atollic/STM32CubeIDE). Son `_sbrk` renvoie `ENOMEM` en cas de collision tas/pile, et il fournit `_kill`, `_getpid`, etc.
+- Résultat : **0 avertissement** (compilation et lien) avec GCC 13.2, 14.2 et 15.2, en Debug et en Release. Le binaire grossit d'environ 40 octets.
+- À savoir : `_write` et `_read` de `syscalls.c` appellent `__io_putchar` et `__io_getchar`, déclarées `weak` et non définies dans le projet. Si un jour on utilise `printf`, il faudra définir `__io_putchar` (par exemple vers l'UART), sinon l'appel aboutira à une HardFault.
