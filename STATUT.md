@@ -10,7 +10,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 2 | Audit de compatibilité HAL v1.1.10 | fait |
 | 3 | Avertissements de compilation | fait |
 | 4 | Appels système newlib | fait |
-| 5 | Makefile `tests/D6_blinkTest` | à faire |
+| 5 | Makefile `tests/D6_blinkTest` | fait |
 | 6 | Intégration continue GitHub Actions | à faire |
 | 7 | Debug en ligne de commande | à faire |
 | 8 | Test de fumée hors matériel | à faire |
@@ -88,3 +88,12 @@ Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Re
 - Solution : ajout au build de `Src/syscalls.c`, déjà présent dans le dépôt (version Atollic/STM32CubeIDE). Son `_sbrk` renvoie `ENOMEM` en cas de collision tas/pile, et il fournit `_kill`, `_getpid`, etc.
 - Résultat : **0 avertissement** (compilation et lien) avec GCC 13.2, 14.2 et 15.2, en Debug et en Release. Le binaire grossit d'environ 40 octets.
 - À savoir : `_write` et `_read` de `syscalls.c` appellent `__io_putchar` et `__io_getchar`, déclarées `weak` et non définies dans le projet. Si un jour on utilise `printf`, il faudra définir `__io_putchar` (par exemple vers l'UART), sinon l'appel aboutira à une HardFault.
+
+### Étape 5 : Makefile Linux pour `tests/D6_blinkTest`
+- La détection des outils, les variables et les règles sont passées du `Makefile` racine vers un fichier commun **`mk/stm32f1.mk`**. Le `Makefile` du firmware et celui du test ne contiennent plus que leurs sources (`TARGET`, `APP_SOURCES`, `APP_INCLUDES`, `STARTUP`, `LDSCRIPT`).
+- `config.mk` est cherché à la racine du dépôt, y compris quand on lance make depuis `tests/D6_blinkTest`.
+- `tests/D6_blinkTest/Makefile` utilise ses propres `LEDBlink.cpp`, `system_stm32f1xx.c` et `stm32f1xx_hal_conf.h`, plus le startup, le script de lien et `syscalls.c` du firmware. L'ancien Makefile VisualGDB du test est renommé `Makefile.visualgdb`, et ses `.vgdbsettings` sont mis à jour.
+- Nouveau contrôle : make s'arrête avec une erreur si deux sources portent le même nom de fichier (les objets sont rangés à plat dans `build/<config>/obj`). Testé.
+- Vérifications :
+  - les .bin du firmware sont identiques octet pour octet à ceux du commit précédent, en Debug et en Release (le découpage est neutre) ;
+  - `make -C tests/D6_blinkTest` (Debug 1 820 o, Release 2 304 o) : 0 avertissement.
