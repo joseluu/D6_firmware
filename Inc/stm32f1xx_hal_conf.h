@@ -147,6 +147,35 @@
 #define  USE_RTOS                     0
 #define  PREFETCH_ENABLE              1
 
+/* Register callbacks: disabled (macros defined explicitly as in the HAL v1.1.10 template) */
+#define  USE_HAL_ADC_REGISTER_CALLBACKS    0U
+#define  USE_HAL_CAN_REGISTER_CALLBACKS    0U
+#define  USE_HAL_CEC_REGISTER_CALLBACKS    0U
+#define  USE_HAL_DAC_REGISTER_CALLBACKS    0U
+#define  USE_HAL_ETH_REGISTER_CALLBACKS    0U
+#define  USE_HAL_HCD_REGISTER_CALLBACKS    0U
+#define  USE_HAL_I2C_REGISTER_CALLBACKS    0U
+#define  USE_HAL_I2S_REGISTER_CALLBACKS    0U
+#define  USE_HAL_MMC_REGISTER_CALLBACKS    0U
+#define  USE_HAL_NAND_REGISTER_CALLBACKS   0U
+#define  USE_HAL_NOR_REGISTER_CALLBACKS    0U
+#define  USE_HAL_PCCARD_REGISTER_CALLBACKS 0U
+#define  USE_HAL_PCD_REGISTER_CALLBACKS    0U
+#define  USE_HAL_RTC_REGISTER_CALLBACKS    0U
+#define  USE_HAL_SD_REGISTER_CALLBACKS     0U
+#define  USE_HAL_SMARTCARD_REGISTER_CALLBACKS0U
+#define  USE_HAL_IRDA_REGISTER_CALLBACKS   0U
+#define  USE_HAL_SRAM_REGISTER_CALLBACKS   0U
+#define  USE_HAL_SPI_REGISTER_CALLBACKS    0U
+#define  USE_HAL_TIM_REGISTER_CALLBACKS    0U
+#define  USE_HAL_UART_REGISTER_CALLBACKS   0U
+#define  USE_HAL_USART_REGISTER_CALLBACKS  0U
+#define  USE_HAL_WWDG_REGISTER_CALLBACKS   0U
+
+/* ################## SPI peripheral configuration ########################## */
+/* CRC calculation in SPI HAL driver: disabled */
+#define USE_SPI_CRC                   0U
+
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 

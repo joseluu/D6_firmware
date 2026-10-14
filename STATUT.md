@@ -7,7 +7,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | - | Build Linux initial (Makefile, `make hal`, variables d'outils) | fait (commit e6f8c93, incomplet, voir étape 0) |
 | 0 | Réparer le commit initial | fait |
 | 1 | Toolchain GCC 14 | fait |
-| 2 | Audit de compatibilité HAL v1.1.10 | à faire |
+| 2 | Audit de compatibilité HAL v1.1.10 | fait |
 | 3 | Avertissements de compilation | à faire |
 | 4 | Appels système newlib | à faire |
 | 5 | Makefile `tests/D6_blinkTest` | à faire |
@@ -45,3 +45,16 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 - Aucun avertissement ne vient du HAL v1.1.10 ni de CMSIS : tous sont dans `Src/` et `Inc/`.
 - En Release apparaissent `-Wrestrict` (strncpy avec zones qui se recouvrent) et `-Wmaybe-uninitialized` (`serialObject`) dans `Src/Serial.cpp`. Ce sont peut-être de vrais bugs, analysés à l'étape 3.
 - 6 avertissements de lien newlib (`_write`, `_read`, ...) : traités à l'étape 4.
+
+### Étape 2 : audit de compatibilité HAL v1.1.10 / CMSIS v4.3.5
+- **`Inc/stm32f1xx_hal_conf.h`** : les modules activés (ADC, CORTEX, DMA, FLASH, GPIO, PWR, RCC, SPI, TIM, UART) n'ont pas changé. Le modèle v1.1.10 définit explicitement `USE_HAL_*_REGISTER_CALLBACKS` et `USE_SPI_CRC`, absents ici. Une macro non définie vaut 0 dans un `#if`, le résultat était donc le même. Je les ai ajoutées à 0U pour suivre le modèle : le .bin Debug et Release est identique octet pour octet avant et après.
+- **`Src/system_stm32f1xx.c`** (CMSIS V4.2.0 de 2017) : conservé. Différences avec le modèle v4.3.5 :
+  - l'ancien fichier remet RCC à zéro dans `SystemInit()` ;
+  - il écrit toujours `SCB->VTOR = FLASH_BASE` (le nouveau seulement si `USER_VECT_TAB_ADDRESS`) ;
+  - `SystemCoreClock` démarre à 72 MHz (8 MHz dans le modèle).
+  Aucune de ces différences n'empêche de compiler avec le nouveau HAL, et le comportement est celui du build VisualGDB, qui compilait déjà ce fichier. Ne pas le remplacer sans tester sur la carte.
+- **`startup/startup_stm32f103xb.s`** : seule différence avec le modèle actuel, `SystemInit` est appelé après la copie de .data et la mise à zéro de .bss (au lieu d'avant). Pas de conséquence ici, puisque `SystemInit` n'utilise pas de variable globale initialisée. Conservé.
+- **Point de vigilance** : le build VisualGDB utilisait le startup `.c` du BSP VisualGDB, le nouveau build utilise le startup `.s` du dépôt (CubeMX/Atollic, cohérent avec `STM32F103C8_FLASH.ld`). J'ai vérifié sur l'ELF :
+  - tous les handlers d'interruption du code (`SysTick`, `USART1`, `ADC1_2`, `DMA1_Channel5`, les exceptions Cortex) sont des symboles forts présents dans la table des vecteurs ;
+  - les callbacks HAL définis en C++ (`HAL_UART_RxCpltCallback`, `TxCplt`, `Error`) sont bien en `extern "C"` et remplacent les versions `weak` du HAL ;
+  - la table des vecteurs est à 0x08000000 et `_estack` vaut 0x20005000.
