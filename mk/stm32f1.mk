@@ -35,13 +35,19 @@ CC      := $(call TOOL,gcc)
 CXX     := $(call TOOL,g++)
 OBJCOPY := $(call TOOL,objcopy)
 SIZE    := $(call TOOL,size)
+GDB     ?= $(call TOOL,gdb)
+NM      := $(call TOOL,nm)
 
 # Programmation / debug
-STM32_PROGRAMMER_PATH ?= $(STM32CUBECLT_PATH)/STM32CubeProgrammer/bin
+# Sans STM32CubeCLT détecté : répertoire de STM32_Programmer_CLI trouvé dans le PATH
+STM32_PROGRAMMER_PATH ?= $(if $(STM32CUBECLT_PATH),$(STM32CUBECLT_PATH)/STM32CubeProgrammer/bin,$(patsubst %/,%,$(dir $(shell command -v STM32_Programmer_CLI 2>/dev/null))))
 STM32_PROGRAMMER_CLI  ?= $(if $(wildcard $(STM32_PROGRAMMER_PATH)/STM32_Programmer_CLI),$(STM32_PROGRAMMER_PATH)/STM32_Programmer_CLI,STM32_Programmer_CLI)
 STLINK_GDBSERVER      ?= $(if $(wildcard $(STM32CUBECLT_PATH)/STLink-gdb-server/bin/ST-LINK_gdbserver),$(STM32CUBECLT_PATH)/STLink-gdb-server/bin/ST-LINK_gdbserver,ST-LINK_gdbserver)
 STLINK_PORT           ?= SWD
 GDB_PORT              ?= 61234
+GDB_HOST              ?= localhost
+# Commande GDB de reset de la cible après "load" (ST-LINK_gdbserver : monitor reset)
+GDB_RESET             ?= monitor reset
 
 # ---------------------------------------------------------------------------
 # Package firmware STM32CubeF1 (HAL + CMSIS)
@@ -133,7 +139,7 @@ ELF := $(BUILD_DIR)/$(TARGET).elf
 BIN := $(BUILD_DIR)/$(TARGET).bin
 HEX := $(BUILD_DIR)/$(TARGET).hex
 
-.PHONY: all clean distclean flash erase gdbserver info hal check-hal
+.PHONY: all clean distclean flash erase gdbserver debug info hal check-hal check
 
 all: $(ELF) $(BIN) $(HEX)
 	@$(SIZE) $(ELF)
@@ -171,6 +177,11 @@ check-hal:
 
 -include $(OBJECTS:.o=.d)
 
+# Vérifications statiques de l'ELF (vecteurs, pile, taille sous la zone EEPROM)
+FLASH_LIMIT ?= 0x08008000
+check: $(ELF)
+	NM="$(NM)" OBJCOPY="$(OBJCOPY)" $(D6_ROOT)/scripts/check_elf.sh $(ELF) $(FLASH_LIMIT)
+
 # Téléchargement du HAL/CMSIS dans third_party/STM32CubeF1 (même arborescence qu'un package STM32CubeF1)
 hal:
 	HAL_DRIVER_VERSION=$(HAL_DRIVER_VERSION) CMSIS_DEVICE_VERSION=$(CMSIS_DEVICE_VERSION) \
@@ -182,8 +193,18 @@ flash: $(HEX)
 erase:
 	"$(STM32_PROGRAMMER_CLI)" -c port=$(STLINK_PORT) -e all
 
+# Serveur GDB ST-LINK (SWD, persistant : reste actif quand GDB se déconnecte)
 gdbserver:
-	"$(STLINK_GDBSERVER)" -p $(GDB_PORT) -d -cp "$(STM32_PROGRAMMER_PATH)"
+	@test -n "$(STM32_PROGRAMMER_PATH)" || { \
+	  echo "*** STM32CubeProgrammer introuvable : définir STM32CUBECLT_PATH ou STM32_PROGRAMMER_PATH."; exit 1; }
+	"$(STLINK_GDBSERVER)" -p $(GDB_PORT) -d -e -cp "$(STM32_PROGRAMMER_PATH)"
+
+# Session GDB : se connecte au serveur ("make gdbserver" dans un autre terminal),
+# programme l'ELF, fait un reset et s'arrête sur main()
+debug: $(ELF)
+	"$(GDB)" -q $(ELF) \
+	  -ex "target extended-remote $(GDB_HOST):$(GDB_PORT)" \
+	  -ex "load" -ex "$(GDB_RESET)" -ex "break main" -ex "continue"
 
 info:
 	@echo "TARGET                = $(TARGET)"
@@ -193,6 +214,7 @@ info:
 	@echo "CC                    = $(CC)  [$(shell $(CC) -dumpversion 2>/dev/null || echo introuvable)]"
 	@echo "STM32_PROGRAMMER_CLI  = $(STM32_PROGRAMMER_CLI)"
 	@echo "STLINK_GDBSERVER      = $(STLINK_GDBSERVER)"
+	@echo "GDB                   = $(GDB)"
 	@echo "STM32CUBE_FW_F1       = $(STM32CUBE_FW_F1)"
 	@echo "HAL_DRIVER_DIR        = $(HAL_DRIVER_DIR)"
 	@echo "CMSIS_DEVICE_DIR      = $(CMSIS_DEVICE_DIR)"

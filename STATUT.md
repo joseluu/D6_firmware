@@ -12,8 +12,8 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 4 | Appels système newlib | fait |
 | 5 | Makefile `tests/D6_blinkTest` | fait |
 | 6 | Intégration continue GitHub Actions | fait |
-| 7 | Debug en ligne de commande | à faire |
-| 8 | Test de fumée hors matériel | à faire |
+| 7 | Debug en ligne de commande | fait |
+| 8 | Test de fumée hors matériel | fait |
 | 9 | Documentation finale | à faire |
 
 ## Journal
@@ -106,3 +106,26 @@ Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Re
   - publication des `.elf`, `.hex`, `.bin` et `.map` en artefacts.
 - STM32CubeCLT n'est pas utilisé en CI : son téléchargement exige un compte st.com et l'acceptation de la licence.
 - Les commandes du workflow ont été rejouées en local sur une copie des fichiers suivis par git : OK.
+
+### Étape 7 : debug en ligne de commande
+- `make gdbserver` lance `ST-LINK_gdbserver` en SWD, en mode persistant (`-e`), sur le port `GDB_PORT` (61234). Le chemin de STM32CubeProgrammer passé avec `-cp` vient de STM32CubeCLT ou, à défaut, du répertoire de `STM32_Programmer_CLI` trouvé dans le PATH. Si rien n'est trouvé, make s'arrête avec un message clair au lieu de lancer le serveur avec un chemin vide.
+- `make debug` lance `arm-none-eabi-gdb` (celui de la toolchain, variable `GDB`) sur l'ELF. GDB se connecte à `GDB_HOST:GDB_PORT`, fait `load`, puis `$(GDB_RESET)` (par défaut `monitor reset`), et s'arrête sur `main()`.
+- Testé contre le serveur GDB de QEMU (`GDB_PORT=1234 GDB_RESET="monitor system_reset"`) : programmation, reset et arrêt sur `main()` à `HAL_Init()`. Non testé avec un vrai ST-LINK (pas de matériel dans cette session).
+- La configuration VS Code (option du plan) n'est pas ajoutée : les chemins dépendent de chaque poste, et `make gdbserver` / `make debug` couvrent l'usage en ligne de commande.
+
+### Étape 8 : tests hors matériel
+- **`make check`** (`scripts/check_elf.sh`), vérifications statiques de l'ELF :
+  - la table des vecteurs est à 0x08000000 et le SP initial vaut `_estack` ;
+  - le vecteur reset vaut `Reset_Handler|1` ;
+  - tous les vecteurs non nuls pointent en flash et en mode Thumb (la constante `BootRAM` 0xF108F85F est ignorée) ;
+  - l'image flash se termine avant la zone EEPROM (`FLASH_LIMIT`, par défaut 0x08008000).
+  OK pour le firmware et pour le test blink, en Debug et en Release. Test négatif : avec `FLASH_LIMIT` à 0x08005000, le contrôle échoue comme prévu.
+- **`make check-qemu`** (`scripts/qemu_smoke.sh`) : QEMU 8.2, machine `stm32vldiscovery` (STM32F100RB, Cortex-M3, 8 Ko de RAM). Le firmware est relié avec une variante du script de lien (pile à 0x20002000, RAM 8 Ko) dans `build/qemu/`, puis piloté par GDB. Contrôles :
+  - `main()` est atteint ;
+  - `.data` est copié (`SystemCoreClock` = 72000000) et `.bss` est à zéro (`uwTick` = 0) ;
+  - aucune HardFault ;
+  - arrêt dans `Error_Handler()` depuis `SystemClock_Config()`. C'est attendu, car QEMU n'émule pas l'oscillateur HSE du STM32F1 ;
+  - les interruptions SysTick fonctionnent (`uwTick` = 101 après le timeout HSE de 100 ms du HAL).
+  OK en Debug et en Release. Test négatif : l'ELF normal (pile à 0x20005000, hors des 8 Ko de RAM de QEMU) échoue comme prévu.
+- Limite : QEMU n'émule ni RCC, ni GPIO, ni SPI, ni l'ADF4351 du STM32F1. Le comportement après la configuration d'horloge (UART, protocole NWT, EEPROM) reste à valider sur la carte.
+- Ces deux contrôles sont ajoutés au CI. Le premier run CI ([38656970746](https://github.com/joseluu/D6_firmware/actions/runs/38656970746)), build Debug et Release, est vert.

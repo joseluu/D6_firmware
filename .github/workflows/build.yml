@@ -40,6 +40,9 @@ jobs:
           echo "$XPACK_GCC_SHA256  $archive" | sha256sum -c -
           tar xzf "$archive"
 
+      - name: Use toolchain
+        run: echo "GCC_PATH=$RUNNER_TEMP/xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION/bin" >> "$GITHUB_ENV"
+
       - name: Cache HAL STM32F1
         uses: actions/cache@v4
         with:
@@ -50,10 +53,21 @@ jobs:
         run: make hal
 
       - name: Build firmware
-        run: make -j"$(nproc)" CONFIG=${{ matrix.config }} GCC_PATH="$RUNNER_TEMP/xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION/bin"
+        run: make -j"$(nproc)" CONFIG=${{ matrix.config }}
 
       - name: Build blink test
-        run: make -j"$(nproc)" -C tests/D6_blinkTest CONFIG=${{ matrix.config }} GCC_PATH="$RUNNER_TEMP/xpack-arm-none-eabi-gcc-$XPACK_GCC_VERSION/bin"
+        run: make -j"$(nproc)" -C tests/D6_blinkTest CONFIG=${{ matrix.config }}
+
+      - name: Static ELF checks
+        run: |
+          make check CONFIG=${{ matrix.config }}
+          make -C tests/D6_blinkTest check CONFIG=${{ matrix.config }}
+
+      - name: Install QEMU
+        run: sudo apt-get update -q && sudo apt-get install -y -q qemu-system-arm
+
+      - name: QEMU smoke test
+        run: make check-qemu CONFIG=${{ matrix.config }}
 
       - uses: actions/upload-artifact@v4
         with:
