@@ -1,4 +1,4 @@
-# Copier ce fichier en config.mk (non versionné) et adapter les chemins à votre machine.
+# Copier ce fichier en config.mk à la racine du dépôt (non versionné) et adapter les chemins à votre machine.
 # Chaque variable peut aussi être passée en ligne de commande (make VAR=...) ou dans l'environnement.
 # Les lignes commentées montrent la valeur détectée par défaut.
 
@@ -26,7 +26,14 @@
 #STM32_PROGRAMMER_CLI  = $(STM32_PROGRAMMER_PATH)/STM32_Programmer_CLI
 #STLINK_GDBSERVER      = $(STM32CUBECLT_PATH)/STLink-gdb-server/bin/ST-LINK_gdbserver
 #STLINK_PORT = SWD
+#GDB         = $(GCC_PATH)/arm-none-eabi-gdb
+#GDB_HOST    = localhost
 #GDB_PORT    = 61234
+#GDB_RESET   = monitor reset
+
+# Contrôles hors matériel
+#FLASH_LIMIT = 0x08008000
+#QEMU        = qemu-system-arm
 
 # Configuration par défaut (Debug ou Release)
 #CONFIG = Debug

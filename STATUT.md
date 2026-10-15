@@ -2,6 +2,23 @@
 
 Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectionate-cerf-8osob9`.
 
+## Synthèse
+
+Toutes les étapes du plan sont terminées.
+- Le firmware et le test blink se compilent sous Linux avec GNU make, sans aucun avertissement, avec GCC 13.2, 14.2 (version majeure de STM32CubeCLT 1.21.0) et 15.2, et le HAL STM32CubeF1 v1.1.10.
+- Les chemins des outils se règlent par variables : ligne de commande, environnement ou `config.mk`.
+- Contrôles automatiques : vérifications statiques de l'ELF et démarrage sous QEMU.
+- CI GitHub Actions vert (Debug et Release).
+- Rien n'a été fusionné dans `master` et aucune PR n'a été ouverte.
+
+### À valider sur la carte D6 (impossible dans cette session : pas de matériel, pas de STM32CubeCLT réel)
+1. `make flash` avec STM32CubeCLT 1.21.0 et un ST-LINK V2 ; `make gdbserver` + `make debug`.
+2. Démarrage complet : horloge HSE/PLL à 72 MHz, LED, bouton.
+3. Liaison série et protocole NWT, en particulier les commandes binaires (`i`), concernées par la correction `memmove` de `Serial.cpp`.
+4. EEPROM : lecture et écriture des paramètres (`EEProm_Read` renvoie maintenant la valeur lue ; avant, la valeur de retour était indéfinie).
+5. Pilotage des deux ADF4351 et mesures ADC (balayages `a`/`b`/`w`/`x`).
+6. Remarque : la page 1 de l'émulation EEPROM est à `EEPROM_START_ADDRESS + 0x10000` = 0x08018000, donc au-delà des 64 Ko d'un STM32F103C8. Cela ne fonctionne que si la puce a en réalité 128 Ko (cas fréquent des C8). C'est antérieur à ce travail et non modifié.
+
 | # | Étape | État |
 |---|-------|------|
 | - | Build Linux initial (Makefile, `make hal`, variables d'outils) | fait (commit e6f8c93, incomplet, voir étape 0) |
@@ -14,7 +31,7 @@ Mis à jour à chaque étape de [PLAN.md](PLAN.md). Branche : `claude/affectiona
 | 6 | Intégration continue GitHub Actions | fait |
 | 7 | Debug en ligne de commande | fait |
 | 8 | Test de fumée hors matériel | fait |
-| 9 | Documentation finale | à faire |
+| 9 | Documentation finale | fait |
 
 ## Journal
 
@@ -129,3 +146,9 @@ Il ne reste plus aucun avertissement dans `Src/` et `Inc/`, en Debug comme en Re
   OK en Debug et en Release. Test négatif : l'ELF normal (pile à 0x20005000, hors des 8 Ko de RAM de QEMU) échoue comme prévu.
 - Limite : QEMU n'émule ni RCC, ni GPIO, ni SPI, ni l'ADF4351 du STM32F1. Le comportement après la configuration d'horloge (UART, protocole NWT, EEPROM) reste à valider sur la carte.
 - Ces deux contrôles sont ajoutés au CI. Le premier run CI ([38656970746](https://github.com/joseluu/D6_firmware/actions/runs/38656970746)), build Debug et Release, est vert.
+
+### Étape 9 : documentation finale
+- README : section Linux réécrite (outils, commandes, tableau complet des variables, organisation des fichiers, EEPROM, QEMU) et badge CI.
+- `config.mk.example` complété (`GDB*`, `FLASH_LIMIT`, `QEMU`). Testé : un `config.mk` qui fixe `CONFIG = Release` est bien pris en compte.
+- Relecture complète du diff par rapport à `master` : une coquille corrigée dans `stm32f1xx_hal_conf.h` (`USE_HAL_SMARTCARD_REGISTER_CALLBACKS0U`, sans espace ; sans effet sur le binaire, vérifié identique).
+- Run CI [38657531524](https://github.com/joseluu/D6_firmware/actions/runs/38657531524) (build, `make check`, `make check-qemu`) : vert en Debug et en Release.
